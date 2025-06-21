@@ -68,7 +68,7 @@ class StepDaddy:
         return Channel(id=channel_id, name=channel_name, tags=meta.get("tags", []), logo=logo)
 
     async def stream(self, channel_id: str):
-        url = f"{self._base_url}/stream/stream-{channel_id}.php"
+        url = f"{self._base_url}/stream/stream-{channel_id}.php"#good
         if len(channel_id) > 3:
             url = f"{self._base_url}/stream/bet.php?id=bet{channel_id}"
         response = await self._session.post(url, headers=self._headers())
@@ -80,6 +80,8 @@ class StepDaddy:
         auth_ts = re.compile(r"var\s+authTs\s*=\s*\"(.*?)\";").findall(source_response.text)[-1]
         auth_rnd = re.compile(r"var\s+authRnd\s*=\s*\"(.*?)\";").findall(source_response.text)[-1]
         auth_sig = re.compile(r"var\s+authSig\s*=\s*\"(.*?)\";").findall(source_response.text)[-1]
+        #auth_request_url = f"https://top2new.newkso.ru/auth.php?channel_id={channel_key}&ts={auth_ts}&rnd={auth_rnd}&sig={auth_sig}"
+        #https://ann.embedstreams.top/v1/channel
         auth_request_url = f"https://top2new.newkso.ru/auth.php?channel_id={channel_key}&ts={auth_ts}&rnd={auth_rnd}&sig={auth_sig}"
         auth_response = await self._session.get(auth_request_url, headers=self._headers(source_url))
         if auth_response.status_code != 200:
@@ -91,9 +93,12 @@ class StepDaddy:
         if not server_key:
             raise ValueError("No server key found in response")
         if server_key == "top1/cdn":
+            #server_url = f"https://top1.newkso.ru/top1/cdn/{channel_key}/mono.m3u8"
             server_url = f"https://top1.newkso.ru/top1/cdn/{channel_key}/mono.m3u8"
+            #https://hipaf6u2j3pwygg.nice-flower.store/v4/variant/VE1gTdz0mLzRnLv52bt9SMhFjdtM3ajFmc09COiFTMlVGOlR2YzUTLzgzN50SOmFGNtIWYwYWL4U2YhRmY3gzL.m3u8
         else:
-            server_url = f"https://{server_key}new.newkso.ru/{server_key}/{channel_key}/mono.m3u8"
+            #server_url = f"https://{server_key}new.newkso.ru/{server_key}/{channel_key}/mono.m3u8"
+            server_url = f"https://{server_key}.nice-flower.store/v4/variant/{channel_key}.m3u8"
         m3u8 = await self._session.get(server_url, headers=self._headers(quote(str(source_url))))
         m3u8_data = ""
         for line in m3u8.text.split("\n"):
